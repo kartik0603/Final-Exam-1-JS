@@ -1,4 +1,4 @@
-let foodlist = [
+const  foodlist = [
     {
         city:"Surat",
         fName:"khaman",
@@ -198,3 +198,45 @@ let foodlist = [
         price:"50/2pc"
     }
 ];
+
+
+const displayFoodItems = (city) => {
+    const foodListElement = document.getElementById('foodList');
+    foodListElement.innerHTML = '';
+    
+    const filteredFoods = foodList.filter(food => food.city === city);
+    
+    if (filteredFoods.length === 0) {
+        foodListElement.innerHTML = '<p>No food items available for your location.</p>';
+        return;
+    }
+    
+    filteredFoods.forEach(food => {
+        const foodItem = document.createElement('div');
+        foodItem.className = 'col-lg-3 col-md-4 col-sm-6 mb-4';
+        foodItem.innerHTML = `
+            <div class="card">
+                <img src="${food.image}" class="card-img-top" alt="${food.fName}">
+                <div class="card-body">
+                    <h5 class="card-title">${food.fName}</h5>
+                    <p class="card-text">Price: ${food.price}</p>
+                    <button class="btn btn-primary add-to-cart">Add to Cart</button>
+                </div>
+            </div>
+        `;
+        foodListElement.appendChild(foodItem);
+    });
+
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+        button.addEventListener('click', function () {
+            const foodItem = button.closest('.card');
+            const foodName = foodItem.querySelector('.card-title').innerText;
+            const foodPrice = foodItem.querySelector('.card-text').innerText;
+
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart.push({ name: foodName, price: foodPrice });
+            localStorage.setItem('cart', JSON.stringify(cart));
+            alert(`${foodName} added to cart.`);
+        });
+    });
+};

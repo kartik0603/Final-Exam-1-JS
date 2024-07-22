@@ -1,4 +1,4 @@
-let foodlist = [
+const  foodlist = [
     {
         city:"Surat",
         fName:"khaman",
@@ -198,3 +198,71 @@ let foodlist = [
         price:"50/2pc"
     }
 ];
+
+const getCityName = async (lat, lng) => {
+    try {
+        const response = await fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=21.1702&lon=72.8311");
+        const data = await response.json();
+        console.log(data);  // Debug: Log the data to see the response
+        return data.address.city || 'Unknown';
+    } catch (error) {
+        console.error('Error fetching city name:', error);
+        return 'Unknown';
+    }
+};
+
+const displayFoodItems = (city) => {
+    const foodListElement = document.getElementById('foodList');
+    foodListElement.innerHTML = '';
+
+    const filteredFoods = foodList.filter(food => food.city === city);
+
+    if (filteredFoods.length === 0) {
+        foodListElement.innerHTML = '<p>No food items available for your location.</p>';
+        return;
+    }
+
+    filteredFoods.forEach(food => {
+        const foodItem = document.createElement('div');
+        foodItem.className = 'col-lg-3 col-md-4 col-sm-6 mb-4';
+        foodItem.innerHTML = `
+            <div class="card">
+                <img src="${food.image}" class="card-img-top" alt="${food.fName}">
+                <div class="card-body">
+                    <h5 class="card-title">${food.fName}</h5>
+                    <p class="card-text">Price: ${food.price}</p>
+                    <button class="btn btn-primary add-to-cart">Add to Cart</button>
+                </div>
+            </div>
+        `;
+        foodListElement.appendChild(foodItem);
+    });
+
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+        button.addEventListener('click', function () {
+            const foodItem = button.closest('.card');
+            const foodName = foodItem.querySelector('.card-title').innerText;
+            const foodPrice = foodItem.querySelector('.card-text').innerText;
+
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart.push({ name: foodName, price: foodPrice });
+            localStorage.setItem('cart', JSON.stringify(cart));
+            alert(`${foodName} added to cart.`);
+        });
+    });
+};
+
+navigator.geolocation.getCurrentPosition(
+    async (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        const city = await getCityName(lat, lng);
+        document.getElementById('location').innerText = `Your location: ${city}`;
+        localStorage.setItem('userCity', city);
+        displayFoodItems(city);
+    },
+    (error) => {
+        console.error('Error getting location:', error);
+        document.getElementById('location').innerText = 'Unable to retrieve location.';
+    }
+);
