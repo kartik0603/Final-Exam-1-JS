@@ -4,17 +4,352 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home - Culinary Explorer</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="styles/style.css">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card-img-top {
+            height: 200px;
+            object-fit: cover;
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <h2 class="text-center">Welcome to Culinary Explorer</h2>
-        <div id="location"></div>
-        <div id="foodList" class="row"></div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Culinary Explorer</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="index.html">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="signup.html">Sign Up</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="login.html">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="cart.html">Cart (<span id="cartCount">0</span>)</a>
+                </li>
+                <li class="nav-item">
+                    <button class="btn btn-outline-secondary" id="logoutBtn">Logout</button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <h2>Welcome to Culinary Explorer</h2>
+        <div id="location" class="mb-4"></div>
+        <button class="btn btn-primary mb-4" onclick="getCurrentLocationCity()">Get Location</button>
+        <div class="input-group mb-4">
+            <input type="text" id="searchInput" class="form-control" placeholder="Enter city name...">
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" onclick="searchFoodItemsByCity()">Search</button>
+            </div>
+        </div>
+        <div class="row" id="foodItemsContainer"></div>
     </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+      const foodItems = [
+    {
+      city: "Surat",
+      fName: "Khaman",
+      image: "https://pulses.org/images/com_yoorecipe/cropped-khaman.jpg",
+      price: 130,
+    },
+    {
+      city: "Surat",
+      fName: "Khandavi",
+      image:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR87sZS95hgsmMRT31JrLLtSCs8G6Ly-adXAw&s",
+      price: 160,
+    },
+    {
+      city: "Surat",
+      fName: "Locho",
+      image:
+        "https://miro.medium.com/v2/resize:fit:1400/1*CR1d12AdBOzJM7cBm8QNzA.jpeg",
+      price: 180,
+    },
+    {
+      city: "Surat",
+      fName: "Patis",
+      image:
+        "https://www.nehascookbook.com/wp-content/uploads/2020/12/Vatana-pattice-WS.jpg",
+      price:   320,
+    },
+    {
+      city: "Surat",
+      fName: "Ghari",
+      image:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQG6WdI_N6XM6wmS-kZ9rWYSBp10yv4fztCQA&s",
+      price: 780,
+    },
+    {
+      city: "Surat",
+      fName: "Surati Sev Khamani",
+      image:
+        "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEge9pVciUfXYCRKUsKDC5gla18Ux1AVdi8aSiRAs9YUJIMhPw9kYx84lfnYNpS2i9dhfVpH7jCSJ9x1fnRVaxGGkiydlQkNAI3Pso4_r8R5cEHrSQpOKYZUBAopJ1qo7Ks3ZqYP09H0HBb5/s1600/IMG_7863.JPG",
+      price: 270 ,
+    },
+    {
+      city: "Surat",
+      fName: "Surati Nankhatai",
+      image:
+        "https://www.yummytummyaarthi.com/wp-content/uploads/2015/03/1-36.jpg",
+      price: 300,
+    },
+    {
+      city: "Surat",
+      fName: "Surati Undhiyu",
+      image:
+        "https://www.indiafoodnetwork.in/wp-content/uploads/2020/01/Undhiyu-3.jpg",
+      price: 380 ,
+    },
+    {
+      city: "Ahmedabad",
+      fName: "Fafda Jalebi",
+      image:
+        "https://www.fabhotels.com/blog/wp-content/uploads/2022/07/fafda-jalebi-1.jpeg",
+      price: 220 ,
+    },
+    {
+      city: "Ahmedabad",
+      fName: "Dabeli",
+      image:
+        "https://www.fabhotels.com/blog/wp-content/uploads/2022/07/dabeli-1.jpg",
+      price: 30,
+    },
+    {
+      city: "Ahmedabad",
+      fName: "Muska Bun",
+      image:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSeqWoswaLNmorqS4le4LlHsSMQ_7S5fIR-Sw&s",
+      price: 120 ,
+    },
+    {
+      city: "Ahmedabad",
+      fName: "Dal Vada",
+      image:
+        "https://www.fabhotels.com/blog/wp-content/uploads/2022/07/Dal-Vada-min.jpg",
+      price: 360  ,
+    },
+    {
+      city: "Ahmedabad",
+      fName: "Chole Kulche",
+      image:
+        "https://www.fabhotels.com/blog/wp-content/uploads/2022/07/Amritsari-Chole-Kulcha-1024x683-1.jpg",
+      price: 100 ,
+    },
+    {
+      city: "Ahmedabad",
+      fName: "Handvo",
+      image:
+        "https://www.fabhotels.com/blog/wp-content/uploads/2022/07/Handvo-550-1.jpg",
+      price:280 ,
+    },
+    {
+      city: "Ahmedabad",
+      fName: "Ragda Patties",
+      image:
+        "https://www.vegrecipesofindia.com/wp-content/uploads/2021/06/ragda-pattice-2.jpg",
+      price:  90 ,
+    },
+    {
+      city: "Vadodara",
+      fName: "Sev Usal",
+      image: "https://blog.swiggy.com/wp-content/uploads/2023/12/Pav.png",
+      price:80 ,
+    },
+    {
+      city: "Vadodara",
+      fName: "Tangy Bhelpuri",
+      image: "https://blog.swiggy.com/wp-content/uploads/2023/12/Bhelpuri.png",
+      price: 120  ,
+    },
+    {
+      city: "Vadodara",
+      fName: "Vada Pav",
+      image: "https://blog.swiggy.com/wp-content/uploads/2023/12/Vada-Pav.png",
+      price: 35 ,
+    },
+    {
+      city: "Vadodara",
+      fName: "Ghughara",
+      image: "https://blog.swiggy.com/wp-content/uploads/2023/12/Ghughra.png",
+      price:  45 ,
+    },
+    {
+      city: "Rajkot",
+      fName: "Kachori",
+      image: "https://blog.swiggy.com/wp-content/uploads/2023/12/Kachori.png",
+      price: 60  ,
+    },
+    {
+      city: "Rajkot",
+      fName: "Thepla",
+      image: "https://blog.swiggy.com/wp-content/uploads/2024/03/Thepla.png",
+      price: 55 ,
+    },
+    {
+      city: "Rajkot",
+      fName: "Khichdi",
+      image:
+        "https://blog.swiggy.com/wp-content/uploads/2024/03/Gujarati-Khichdi.png",
+      price: 120 ,
+    },
+    {
+      city: "Rajkot",
+      fName: "Khakhra",
+      image: "https://blog.swiggy.com/wp-content/uploads/2024/03/Chila-1.png",
+      price: 45  ,
+    },
+    {
+      city: "Rajkot",
+      fName: "Ghanthiya",
+      image:
+        "https://b.zmtcdn.com/data/dish_photos/267/79d7118ce9e78ff9e9ac2a5784fee267.jpg",
+      price: 420 ,
+    },
+    
+  
+  
+    {
+      city: "Junagadh",
+      fName: "Dudhi Halwa",
+      image:
+        "https://cdn1.foodviva.com/static-content/food-images/desserts-sweets-recipes/dudhi-halwa-recipe/dudhi-halwa-recipe.jpg",
+      price:  300,
+    },
+    {
+      city: "Gandhinagar",
+      fName: "Khichu",
+      image:
+        "https://www.cookingcarnival.com/wp-content/uploads/2023/01/Khichu-3.jpg",
+      price: 35 ,
+    },
+    
+    {
+      city: "Anand",
+      fName: "Mug Pulav",
+      image:
+        "https://b.zmtcdn.com/data/dish_photos/85f/469caa90f952fadc618c2649a8ada85f.jpg",
+      price: 150  ,
+    },
+    {
+      city: "Anand",
+      fName: "Sandwich",
+      image:
+        "https://b.zmtcdn.com/data/dish_photos/b85/3d59bd6c1f9d9f0b25b13b5c05f08b85.jpg",
+      price:160  ,
+    },
+    {
+      city: "Anand",
+      fName: "Pav Bhaji",
+      image:
+        "https://upload.wikimedia.org/wikipedia/commons/4/4a/Bambayya_Pav_bhaji.jpg",
+      price: 140,
+    },
+  ];
 
-    <script src="scripts/location.js"></script>
-    <script src="scripts/main.js"></script>
+        function displayFoodItems(items) {
+            const container = document.getElementById('foodItemsContainer');
+            container.innerHTML = '';
+            if (items.length === 0) {
+                container.innerHTML = '<p>No food items available for the selected city.</p>';
+            } else {
+                items.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'col-md-4 mb-4';
+                    card.innerHTML = `
+                        <div class="card">
+                            <img src="${item.image}" class="card-img-top" alt="${item.fName}">
+                            <div class="card-body">
+                                <h5 class="card-title">${item.fName}</h5>
+                                <p class="card-text">Price: ${item.price}</p>
+                                <button class="btn btn-primary add-to-cart" data-item='${JSON.stringify(item)}'>Add to Cart</button>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            }
+
+            document.querySelectorAll('.add-to-cart').forEach(button => {
+                button.addEventListener('click', function() {
+                    const item = JSON.parse(this.getAttribute('data-item'));
+                    addToCart(item);
+                });
+            });
+        }
+
+        function getCurrentLocationCity() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+
+                    fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const city = data.city || data.locality || 'Unknown Location';
+                            document.getElementById('location').innerText = `Current Location: ${city}`;
+                            console.log('City detected:', city);  // Debugging line
+
+                            const cityItems = foodItems.filter(item => item.city.toLowerCase() === city.toLowerCase());
+                            displayFoodItems(cityItems);
+                        })
+                        .catch(error => {
+                            console.error('Error fetching location data:', error);
+                            document.getElementById('location').innerText = 'Error fetching location data.';
+                        });
+                }, error => {
+                    console.error('Error getting location:', error);
+                    document.getElementById('location').innerText = 'Error getting location.';
+                });
+            } else {
+                alert('Geolocation is not supported by this browser.');
+            }
+        }
+
+        function searchFoodItemsByCity() {
+            const city = document.getElementById('searchInput').value.trim();
+            if (city === '') {
+                alert('Please enter a city name.');
+                return;
+            }
+            const cityItems = foodItems.filter(item => item.city.toLowerCase() === city.toLowerCase());
+            displayFoodItems(cityItems);
+        }
+
+        function addToCart(item) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const existingItemIndex = cart.findIndex(cartItem => cartItem.fName === item.fName);
+            
+            if (existingItemIndex > -1) {
+                cart[existingItemIndex].quantity += 1;
+            } else {
+                item.quantity = 1;
+                cart.push(item);
+            }
+
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+        }
+
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const cartCount = cart.reduce((total, item) => total + (item.quantity || 0), 0);
+            document.getElementById('cartCount').textContent = cartCount;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount();
+        });
+    </script>
+    <script src="https://code.jquery.com/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
